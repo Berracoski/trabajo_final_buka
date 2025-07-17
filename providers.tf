@@ -24,6 +24,6 @@ provider "kubernetes" {
 #TODO: editar kubernetes y config path
 provider "helm" {
   kubernetes = {
-  config_path = "~/.kube/config"
+    config_path = "~/.kube/config"
   }
 }
