@@ -1,4 +1,4 @@
-# Provedor aws
+# Provider aws
 terraform {
   required_providers {
     aws = {
@@ -13,14 +13,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Provedor kubernetes 
+# Provider kubernetes 
 # TODO: Editar config path y config context
 provider "kubernetes" {
   config_path    = "~/.kube/config"
   config_context = "my-context"
 }
 
-# Provedor helm
+# Provider helm
 #TODO: editar kubernetes y config path
 provider "helm" {
   kubernetes = {
