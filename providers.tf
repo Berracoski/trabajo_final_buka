@@ -14,10 +14,16 @@ provider "aws" {
 }
 
 # Provider kubernetes 
-# TODO: Editar config path y config context
+
 provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = "my-context"
+  alias                  = "eks"
+  host                   = aws_eks_cluster.main.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.main.token
+}
+
+data "aws_eks_cluster_auth" "main" {
+  name = aws_eks_cluster.main.name
 }
 
 # Provider helm
@@ -27,3 +33,6 @@ provider "helm" {
     config_path = "~/.kube/config"
   }
 }
+
+# TLS needed for the thumbprint
+provider "tls" {}
