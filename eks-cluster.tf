@@ -3,13 +3,11 @@ resource "aws_eks_cluster" "main" {
 
 
   role_arn = aws_iam_role.cluster.arn
-  version  = "1.32"
+  version  = local.k8s_version
 
   vpc_config {
     subnet_ids = [
-      aws_subnet.public[0].id,
-      aws_subnet.public[1].id,
-      aws_subnet.public[2].id,
+      aws_subnet.public[*].id
     ]
     endpoint_private_access = true
     endpoint_public_access  = true

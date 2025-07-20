@@ -3,7 +3,7 @@ resource "aws_eks_addon" "this" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = "aws-ebs-csi-driver"
 
-  addon_version               = "v1.32.0-eksbuild.1"
+  addon_version               = "v${local.k8s_version}.0-eksbuild.1"
   configuration_values        = null
   preserve                    = true
   resolve_conflicts_on_create = "OVERWRITE"
