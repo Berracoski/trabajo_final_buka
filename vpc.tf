@@ -51,12 +51,13 @@ resource "aws_route" "public_internet_access" {
   gateway_id             = aws_internet_gateway.gw.id
 }
 
-## Suredes Privadas
+## Subredes Privadas
 
 resource "aws_subnet" "private" {
-  count      = 3
-  vpc_id     = aws_vpc.main.id
-  cidr_block = cidrsubnet(aws_vpc.main.cidr_block, 8, 3 + count.index)
+  count             = 3
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, 3 + count.index)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
   tags = {
     Name = "private-subnet-${count.index + 1}"
   }
