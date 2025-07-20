@@ -9,7 +9,7 @@ resource "aws_eks_cluster" "main" {
     subnet_ids = [
       aws_subnet.public[0].id,
       aws_subnet.public[1].id,
-      aws_subnet.public[2].id, ## TODO: preguntar al viejo si agregar o no las 3 subnets
+      aws_subnet.public[2].id,
     ]
   }
 }

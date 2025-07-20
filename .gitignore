@@ -1,2 +1,4 @@
 .terraform
 pin.pem
+*.tfstate
+.terraform.*
