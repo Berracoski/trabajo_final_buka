@@ -11,12 +11,8 @@ resource "aws_eks_cluster" "main" {
       aws_subnet.public[1].id,
       aws_subnet.public[2].id,
     ]
+    endpoint_private_access = true
+    endpoint_public_access  = true
   }
 }
 
-output "cluster_endpoint" {
-  value = aws_eks_cluster.main.endpoint
-}
-output "cluster_name" {
-  value = aws_eks_cluster.main.name
-}

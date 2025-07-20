@@ -14,3 +14,14 @@ data "aws_ami" "ubuntu_2404" {
 
   owners = ["099720109477"] # Canonical's AWS account ID
 }
+
+# kubernetes drivers
+data "aws_eks_addon_version" "this" {
+  addon_name         = "aws-ebs-csi-driver"
+  kubernetes_version = aws_eks_cluster.main.version
+  most_recent        = true
+}
+
+data "tls_certificate" "oidc" {
+  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
