@@ -15,3 +15,21 @@ resource "aws_eks_addon" "this" {
   ]
 
 }
+
+resource "kubernetes_storage_class" "ebs_csi" {
+  provider = kubernetes.eks
+  metadata {
+    name = "ebs-csi-sc"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
+  }
+
+  storage_provisioner = "ebs.csi.aws.com"
+  volume_binding_mode = "WaitForFirstConsumer"
+
+  parameters = {
+    type      = "gp3"
+    encrypted = "true"
+  }
+}

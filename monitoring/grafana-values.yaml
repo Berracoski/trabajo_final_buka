@@ -1,0 +1,22 @@
+# Enable persistence so dashboards survive pod restarts
+persistence:
+  enabled: true
+  size: 10Gi
+  # Use your cluster's default StorageClass:
+  storageClassName: ebs-csi-sc
+
+# Expose Grafana via a LoadBalancer on port 80
+service:
+  type: LoadBalancer
+  port: 80
+
+# Preconfigure Prometheus as the default data source
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-server.prometheus.svc.cluster.local
+        isDefault: true
