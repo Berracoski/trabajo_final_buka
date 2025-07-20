@@ -1,37 +1,37 @@
-# resource "kubernetes_deployment" "nginx" {
-#   provider = kubernetes.eks
-#   metadata {
-#     name = "nginx-deployment"
-#     labels = {
-#       app = "nginx"
-#     }
-#   }
+resource "kubernetes_deployment" "nginx" {
+  provider = kubernetes.eks
+  metadata {
+    name = "nginx-deployment"
+    labels = {
+      app = "nginx"
+    }
+  }
 
-#   spec {
-#     replicas = 3
-#     selector {
-#       match_labels = {
-#         app = "nginx"
-#       }
-#     }
+  spec {
+    replicas = 3
+    selector {
+      match_labels = {
+        app = "nginx"
+      }
+    }
 
-#     template {
-#       metadata {
-#         labels = {
-#           app = "nginx"
-#         }
-#       }
+    template {
+      metadata {
+        labels = {
+          app = "nginx"
+        }
+      }
 
-#       spec {
-#         container {
-#           name  = "nginx"
-#           image = "nginx:latest"
+      spec {
+        container {
+          name  = "nginx"
+          image = "nginx:latest"
 
-#           port {
-#             container_port = 80
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
+          port {
+            container_port = 80
+          }
+        }
+      }
+    }
+  }
+}
