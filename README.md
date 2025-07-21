@@ -29,7 +29,7 @@ Es un proyecto orientado a facilitar la provisión automatizada y reproducible d
 1. **Clonar el repositorio**
 ```bash
 git clone https://github.com/RodriLll/trabajo_final_mundose.git
-cd trabajo_final_mundose
+cd trabajo_final_mundose/infra
 ```
 
 2. **Inicializar Terraform**
