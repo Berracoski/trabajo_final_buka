@@ -16,7 +16,7 @@ resource "kubernetes_deployment" "game_2048" {
   }
 
   spec {
-    replicas = 1
+    replicas = 3
 
     selector {
       match_labels = {

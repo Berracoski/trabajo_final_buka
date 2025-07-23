@@ -1,5 +1,4 @@
-#Provider kubernetes 
-
+## Provider kubernetes for EKS
 provider "kubernetes" {
   alias                  = "eks"
   host                   = data.aws_eks_cluster.main.endpoint
