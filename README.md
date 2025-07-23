@@ -1,120 +1,216 @@
-# Trabajo final MundosE DevOps
+# AWS EKS Cluster & Application Deployment with Terraform
 
-## Descripción
+This repository contains Infrastructure as Code (IaC) to deploy a robust Kubernetes cluster on Amazon Elastic Kubernetes Service (EKS) in AWS. It includes all necessary infrastructure components, such as networking (VPC, subnets), IAM roles, storage, EKS node groups, and a bastion host. Additionally, it automates the deployment of a sample Nginx application and a comprehensive monitoring stack using Prometheus and Grafana.
 
-Este repositorio contiene la infraestructura como código (IaC) para desplegar y gestionar un clúster de Kubernetes en AWS utilizando Amazon EKS, junto con los recursos necesarios para la capa de red, roles IAM, almacenamiento, y configuración de nodos y bastión. Además, incluye scripts para la preparación y configuración del entorno.
+This project is designed to facilitate automated, reproducible, and scalable cloud infrastructure provisioning for container orchestration environments.
 
-Es un proyecto orientado a facilitar la provisión automatizada y reproducible de la infraestructura en la nube para entornos de orquestación de contenedores.
+## Table of Contents
 
-## Estructura del proyecto
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Deployment Guide](#deployment-guide)
+  - [Step 1: Clone the Repository](#step-1-clone-the-repository)
+  - [Step 2: Deploy Core Infrastructure (EKS Cluster, VPC, etc.)](#step-2-deploy-core-infrastructure-eks-cluster-vpc-etc)
+  - [Step 3: Configure `kubectl` Access](#step-3-configure-kubectl-access)
+  - [Step 4: Deploy Monitoring Stack (Prometheus & Grafana)](#step-4-deploy-monitoring-stack-prometheus--grafana)
+  - [Step 5: Deploy Sample Application (Nginx)](#step-5-deploy-sample-application-nginx)
+- [Accessing Services](#accessing-services)
+  - [Accessing Grafana](#accessing-grafana)
+- [Cleanup](#cleanup)
+- [Important Notes](#important-notes)
+- [Authors](#authors)
+- [License](#license)
 
-- **Archivos `.tf`**: Código Terraform para desplegar recursos como VPC, subredes, grupos de nodos, roles IAM, EBS, Clúster EKS y bastión.
-- **`user_data.sh`**: Script que se ejecuta en instancias EC2 para configurar nodos o bastión al inicializarlos.
-- **`app-ngnix/`**: Carpeta con recursos relacionados con una aplicación basada en Nginx.
-- **`docs/`**: Documentación complementaria.
-- **`monitoring/`**: Configuraciones o scripts para monitoreo.
-- **`infra/`**: Módulos o definiciones adicionales de infraestructura.
+## Features
 
-## Requisitos previos
+- **Automated EKS Cluster Deployment**: Provision a production-ready EKS cluster with Terraform.
+- **Network Infrastructure**: Sets up a dedicated VPC, public and private subnets, NAT Gateways, and security groups.
+- **IAM Roles**: Configures necessary IAM roles for EKS and EC2 instances.
+- **Node Groups**: Deploys managed EKS node groups.
+- **Bastion Host**: Includes a bastion host for secure access to private resources.
+- **Monitoring Stack**: Deploys Prometheus and Grafana using Helm charts via Terraform for comprehensive cluster monitoring.
+- **Sample Application**: Deploys a simple Nginx application as an example workload.
+- **Idempotent Deployments**: Leverage Terraform for consistent and repeatable infrastructure provisioning.
 
-- Tener instalado [Terraform](https://www.terraform.io/downloads.html).
-- Tener instalado y configurado el [AWS CLI](https://aws.amazon.com/cli/).
-- Configurar tus credenciales de AWS (por ejemplo, usando `aws configure`).
-- Conocimientos básicos sobre AWS y Kubernetes.
-
-## Cómo usar este repositorio
-
-### Paso a paso para desplegar la infraestructura
-
-1. **Clonar el repositorio**
-```bash
-git clone https://github.com/RodriLll/trabajo_final_mundose.git
-cd trabajo_final_mundose/infra
+## Project Structure
+```
+.
+├── app-nginx/ # Terraform configurations for deploying a sample Nginx application on EKS.
+├── docs/ # Supplementary documentation (if any).
+├── infra/ # Core Terraform configurations for AWS infrastructure (VPC, EKS cluster, IAM, etc.).
+├── monitoring/ # Terraform configurations for deploying Prometheus and Grafana on EKS using Helm.
+├── user_data.sh # Script executed on EC2 instances for node/bastion host configuration.
+├── .gitignore # Git ignore file for common Terraform and environment files.
 ```
 
-2. **Inicializar Terraform**
+## Prerequisites
+
+Before you begin, ensure you have the following tools installed and configured on your local machine:
+
+1.  **Terraform**: [Install Terraform](https://developer.hashicorp.com/terraform/downloads) (v1.0.0 or higher recommended).
+2.  **AWS CLI**: [Install and Configure AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). Ensure your AWS credentials are configured (e.g., `aws configure`).
+3.  **`kubectl`**: [Install `kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl/). Used for interacting with your Kubernetes cluster.
+4.  **Basic AWS and Kubernetes Knowledge**: Familiarity with these technologies will be beneficial.
+
+## Deployment Guide
+
+Follow these steps sequentially to deploy the entire infrastructure, monitoring stack, and sample application.
+
+### Step 1: Clone the Repository
+
+First, clone this repository to your local machine:
+```bash
+git clone https://github.com/Berracoski/trabajo_final_buka.git
+cd trabajo_final_buka
+```
+
+### Step 2: Deploy Core Infrastructure (EKS Cluster, VPC, etc.)
+
+Navigate into the `infra` directory to deploy the foundational AWS resources, including the VPC, subnets, EKS cluster, and node groups.
+```bash
+cd infra/
+```
+Initialize Terraform:
 ```bash
 terraform init
 ```
 
-3. **Revisar el plan de ejecución**
+Review the planned changes (optional but recommended):
 ```bash
 terraform plan
 ```
-
-4. **Aplicar la configuración para crear la infraestructura en AWS**
+Apply the configuration to create the infrastructure. Confirm the operation by typing `yes` when prompted. **Note**: EKS cluster provisioning can take a significant amount of time (15-30 minutes).
 ```bash
 terraform apply
 ```
 
-Confirma la operación cuando se te solicite. Ten en cuenta que la provisión del clúster puede tardar varios minutos.
+### Step 3: Configure `kubectl` Access
 
-5. **Configurar el acceso al clúster EKS con `kubectl`**
-
-Ejecuta el siguiente comando para actualizar el archivo de configuración de Kubernetes y poder interactuar con el clúster:
+Once the EKS cluster is deployed, you need to update your local `kubeconfig` file to interact with it using `kubectl`.
 ```bash
-aws eks update-kubeconfig \
-  --region us-east-1 \
-  --name main
+aws eks update-kubeconfig --region us-east-1 --name main
 ```
 
-6. **Verificar que los nodos estén listos**
+
+Verify that your Kubernetes nodes are in a `Ready` state:
 ```bash
 kubectl get nodes
 ```
 
-Deberías ver tus nodos listados y en estado `Ready`.
+You should see your EKS worker nodes listed with a `Ready` status.
 
-7. **Desplegar la aplicación 2048 y Nginx**
+### Step 4: Deploy Monitoring Stack (Prometheus & Grafana)
 
-En la carpeta `app-nginx` se encuentran los manifiestos para desplegar un servidor Nginx y una aplicación web con el juego 2048. Usa `terraform init`, `terraform apply` para desplegar esta aplicación de ejemplo.
+Now, navigate to the `monitoring` directory to deploy Prometheus and Grafana using Terraform and Helm. This will set up comprehensive monitoring for your EKS cluster.
+```bash
+cd ../monitoring/
+```
 
-8. **Desplegar Prometheus y Grafana para monitoreo**
+Initialize Terraform for the monitoring stack:
+```bash
+terraform init
+```
+Apply the monitoring configuration. Confirm by typing `yes`.
+```bash
+terraform apply
+```
 
-En la carpeta `monitoring` se encuentran configuraciones para desplegar Prometheus y Grafana en el clúster EKS usando Helm y configuraciones compatibles con Terraform. Esto permite recolectar métricas del clúster y visualizar dashboards en Grafana para monitorear el desempeño y estado de tus aplicaciones y la infraestructura.
-
-Para desplegarlos, usa `terraform init`, `terraform apply`. Revisa los archivos dentro de `monitoring/` para más detalles.
-
-9. **Verificar que Prometheus y Grafana estén corriendo**
+Verify that Prometheus and Grafana pods are running:
 ```bash
 kubectl get all -n prometheus
 kubectl get all -n grafana
 ```
 
-Deberías ver los pods y servicios de Prometheus y Grafana activos.
+You should see the pods, services, and other resources for Prometheus and Grafana active.
 
-10. **Acceder a Grafana**
+### Step 5: Deploy Sample Application (Nginx)
 
-Para acceder a Grafana, listamos los servicios en el namespace `grafana`:
+Finally, proceed to the `app-nginx` directory to deploy the sample Nginx application onto your EKS cluster.
+```bash
+cd ../app-nginx/
+```
+
+Initialize Terraform for the application deployment:
+```bash
+terraform init
+```
+
+Apply the application configuration. Confirm by typing `yes`.
+```bash
+terraform apply
+```
+
+Verify that the Nginx application pods are running:
+```bash
+kubectl get deployments -n default
+kubectl get services -n default
+```
+
+
+Look for a deployment and service related to Nginx.
+
+## Accessing Services
+
+### Accessing Grafana
+
+To access the Grafana dashboard, you'll need the external IP address of the Grafana service.
+
+List the services in the `grafana` namespace:
 ```bash
 kubectl get svc -n grafana
 ```
-Y en la lista copiar el external IP del servicio `service/grafana`.
 
-11. **Destruir la infraestructura**
+Locate the service named `service/grafana` and copy its `EXTERNAL-IP`. Paste this IP address into your web browser to access the Grafana login page.
 
- Para evitar costos cuando no uses más la infraestructura:
+## Cleanup
 
- ```bash
- terraform destroy
- ```
+To avoid incurring unexpected AWS costs, it's crucial to destroy all the deployed resources once you are finished. **It's important to destroy resources in reverse order of deployment if dependencies exist, or use a top-level destroy if applicable.**
 
-## Notas importantes
+For this project, you can destroy each component from its respective directory or try to destroy from the `infra` folder, which should cascade.
 
-- Asegúrate de tener configuradas correctamente tus credenciales de AWS.
-- Terraform, AWS CLI y `kubectl` deben estar instalados en tu máquina.
-- El despliegue puede tardar entre 15 y 30 minutos, dependiendo de la región y la configuración.
-- Revisa los archivos `.tf`, `user_data.sh`, y el contenido de las carpetas `app-nginx` y `monitoring` para adaptar configuraciones específicas.
+**Method 1: Destroy from each folder (Recommended for safety)**
 
-## Autores
+1.  **Destroy Application:**
 
-- Rodrigo Llanos.
-- Gastón Valvassori.
+    ```
+    cd app-nginx/
+    terraform destroy
+    ```
+2.  **Destroy Monitoring:**
 
----
+    ```
+    cd ../monitoring/
+    terraform destroy
+    ```
+3.  **Destroy Infrastructure:**
 
-## Recursos adicionales
+    ```
+    cd ../infra/
+    terraform destroy
+    ```
 
-- [Documentación oficial de Terraform](https://www.terraform.io/docs)
-- [Guía oficial de Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
-- [Prometheus y Grafana para Kubernetes](https://grafana.com/docs/grafana/latest/installation/kubernetes/)
+**Method 2: Destroying from `infra` (Might require manual intervention if dependencies cause issues)**
+
+You might be able to destroy everything by running `terraform destroy` from the `infra` directory if the Terraform states are linked correctly, but sometimes cross-module dependencies (like the EKS cluster being used by `helm_release` in `monitoring` and `kubernetes_deployment` in `app-nginx`) can cause issues. If `terraform destroy` from `infra` fails, revert to Method 1.
+
+From the root of the repository
+```bash
+cd infra/ # If you are not already there
+terraform destroy
+```
+
+
+Confirm the destruction by typing `yes` when prompted for each step.
+
+## Important Notes
+
+-   **AWS Credentials**: Ensure your AWS credentials have sufficient permissions to create and manage EKS clusters, EC2 instances, VPC resources, and IAM roles.
+-   **Deployment Time**: The initial deployment of the EKS cluster can take a considerable amount of time. Be patient.
+-   **Region**: The current configuration uses `us-east-1`. If you need to deploy to a different region, you will need to update the `region` in your `provider "aws"` block within the `infra` directory.
+-   **Customization**: Review the `.tf` files, `user_data.sh`, and the contents of the `app-nginx` and `monitoring` folders to adapt configurations to your specific needs.
+-   **Security**: This setup provides a functional environment. For production, consider further security enhancements, such as stricter IAM policies, private EKS endpoints, and advanced network controls.
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
